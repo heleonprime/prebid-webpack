@@ -6,6 +6,11 @@ npm i -D babel-loader @babel/core @babel/preset-env webpack
 npm i --save lodash # не имеет отношения к делу
 ```
 
+### Install dependencies
+```sh
+npm install
+```
+
 ### Build
 ```sh
 npm run build
