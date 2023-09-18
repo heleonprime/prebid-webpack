@@ -20,6 +20,7 @@ npm run build
 ```sh
 npm run start
 ```
+Should open new tab on 127.0.0.1:8080 with project
 
 ### Rebuild on files change in real time (for development)
 ```sh
