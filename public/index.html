@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Getting Started</title>
+    <!-- Стили: попап и модальное окно-->
+    <style>
+        .popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px; height: 300px; background-color: #fff; border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); display: none; z-index: 9999; }
+        .popup__wrapper { position: relative; width: 100%; height: 100%; }
+        .popup__content { margin: 20px; }
+        .popup__close { position: absolute;
+            top: -30px;
+            right: 0px;
+            width: 31px;
+            height: 31px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #fff;
+            text-align: center;
+            padding-top: 5px;
+        }
+        .popup__timer { position: absolute; top: -30px; right: 0px; width: 30px; height: 30px; font-size: 18px;
+            font-weight: bold; text-align: center; color: #fff; background-color: #000; line-height: 30px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        @media (max-width: 767px) { .popup { width: 100%; height: 250px; left: 0; bottom: 0; border-radius: 0; } }
+        
+        #modal-overlay {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        }
+        
+        #modal-content {
+        position: relative;
+        margin: 0;
+        box-sizing: border-box;
+        border-radius: 6px;
+        max-width: 100%;
+        width: 95%;
+        text-align: center;
+        z-index: 999;
+        height: 100vh;
+        display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #close-button {
+        position: absolute;
+        top: 10px;
+        right: 45px;
+        font-size: 36px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #fff;
+        }
+        
+        #countdown {
+        width: 7px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            position: absolute;
+            top: 0px;
+            right: 45px;
+            cursor: pointer;
+        color: #fff;
+        }
+    </style>
+
+    <!-- Скрипт: попап и модальное окно -->
+    <script>
+        /* Modal functions */
+        let flag = null;
+        function saveTimeToSessionStorage() {
+            const currentTime = new Date().getTime().toString();
+            sessionStorage.setItem('savedTime', currentTime);
+        }
+        function openModal() {
+        document.getElementById("modal-overlay").style.display = "block";
+        }
+        function closeModal() {
+        document.getElementById("modal-overlay").style.display = "none";
+        saveTimeToSessionStorage();
+        flag = 1;
+        sessionStorage.setItem("flag", flag.toString());
+        }
+        function checkTimeDifferenceAndClearStorage() {
+        const savedTime = sessionStorage.getItem('savedTime');
+        if (!savedTime) return;
+        
+        const currentTime = new Date().getTime();
+        const savedTimestamp = parseInt(savedTime);
+        
+        const timeDifferenceInMs = currentTime - savedTimestamp;
+        const timeDifferenceInMinutes = timeDifferenceInMs / 1000 / 60;
+        if (timeDifferenceInMinutes > 1) {
+            flag = 0;
+            sessionStorage.removeItem('flag');
+            sessionStorage.removeItem('savedTime');
+            console.log(flag);
+        }
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+        var modal = document.querySelector('#modal-content');
+        if(modal)
+        {
+            var count = 3;
+            var countdown = setInterval(function() {
+            if (count == 0) {
+                clearInterval(countdown);
+                var closeButton = document.createElement("span");
+                closeButton.id = "close-button";
+                closeButton.innerHTML = "&times;";
+                modal.appendChild(closeButton);
+                document.getElementById("countdown").style.display = "none";
+                closeButton.addEventListener("click", closeModal);
+            
+            } else {
+            document.getElementById("countdown").innerHTML = count;
+                count--;
+            }
+            
+        
+            }, 1000);
+        
+            checkTimeDifferenceAndClearStorage();
+        
+            if (sessionStorage.getItem("flag")) {
+            flag = parseInt(sessionStorage.getItem("flag"));
+            }
+            else {
+            flag = 0;
+            if (flag === 0) {
+            if(/iPhone|iPad|iPod|webOS|BlackBerry|Windows Phone|Opera Mini|IEMobile|Mobile|Android/i.test(navigator.userAgent)){
+                openModal();
+            }
+            } 
+            }
+        }
+        });
+    
+        /* Popup handle */
+        document.addEventListener("DOMContentLoaded", function() {
+        const popup = document.querySelector('.popup');
+        if(popup)
+        {
+            const popupTimer = popup.querySelector('.popup__timer');
+            const popupClose = popup.querySelector('.popup__close');
+    
+            // функция показа блока
+            function showPopup() {
+                popup.style.display = 'block';
+                popupClose.style.display = 'none'; 
+                popupTimer.style.display = 'block'; 
+                popupTimer.textContent = 10; 
+                countdownTimer(); 
+            }
+            showPopup();
+    
+            function countdownTimer() {
+            let time = 10; // время в секундах
+            const countdownInterval = setInterval(() => {
+                time--;
+                popupTimer.textContent = time;
+                if (time <= 0) {
+                clearInterval(countdownInterval);
+                popupClose.style.display = 'block';
+                popupTimer.style.display = 'none';
+                }
+            }, 1000);
+            }
+            popupClose.addEventListener('click', () => {
+                let currentPopupContent = popup.querySelector('.popup_content');
+                let contentHTML = currentPopupContent.outerHTML;
+                currentPopupContent.parentNode.removeChild(currentPopupContent);
+                popupClose.style.display = 'none';
+                popup.style.display = 'none';
+                setTimeout(() => {
+                    showPopup();
+                }, 20000);
+            });
+        }
+        });
+    </script>
+
+  </head>
+  <body>
+    <!-- 'div-gpt-ad-300x250_rec', /* флайролл */ замени на: -->
+    <div class="popup">
+        <div id="popup_roditel" class="popup__wrapper">
+            <div class="popup_content">
+            <div id='banner-container-1' style='display: flex;align-items: center;justify-content: center; max-height: 250px; overflow: hidden;'></div>
+            </div>
+            <div class="popup__close" title="Закрыть">X</div>
+            <div class="popup__timer">10</div>
+        </div>
+    </div>
+    
+    <!-- 'div-gpt-ad-300x250_fs', /* фуллскрин */ замени на: -->
+    <div id="modal-overlay">
+        <div id="modal-content">
+        <div id='banner-container-0' style='display: flex;align-items: center;justify-content: center; max-height: 250px; overflow: hidden;'></div>
+        <div id="countdown"></div>
+        </div>
+    </div>
+    
+    <!-- 'div-gpt-ad-300x250_stat',/*статика*/ замени на: -->
+    <div id='banner-container-2' style='display: flex;align-items: center;justify-content: center; max-height: 250px; overflow: hidden;'></div>
+    
+    <!-- 'div-gpt-ad-300x250', /* cайдбар */ замени на: -->
+    <div id='banner-container-3' style='display: flex;align-items: center;justify-content: center; max-height: 250px; overflow: hidden;'></div>
+  
+    <script src="js/app.js"></script>
+  </body>
+</html>
